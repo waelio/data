@@ -295,6 +295,7 @@ describe('createServer', () => {
     const r = await httpRequest(options, undefined);
     // sending no body at all → empty string → invalid JSON
     assert.equal(r.status, 400);
+    assert.equal(r.body.error, 'Invalid JSON body');
   });
 
   it('OPTIONS preflight returns 204 with CORS headers', async () => {
