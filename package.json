@@ -1,0 +1,19 @@
+{
+  "name": "@waelio/data",
+  "version": "1.0.0",
+  "description": "Local secure reactive database accessible from a website",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/"
+  },
+  "keywords": [
+    "database",
+    "local",
+    "secure",
+    "reactive",
+    "json"
+  ],
+  "author": "waelio",
+  "license": "MIT"
+}
