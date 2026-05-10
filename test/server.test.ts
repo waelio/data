@@ -1,15 +1,16 @@
 'use strict'
 
-const { describe, it, before, after, beforeEach } = require('node:test')
-const assert = require('node:assert/strict')
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
-const http = require('http')
-const crypto = require('crypto')
+import { describe, it, before, after, beforeEach } from 'node:test'
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import http from 'node:http'
+import crypto from 'node:crypto'
 
-const Database = require('../src/Database')
-const createServer = require('../src/server')
+import Database from '../src/Database'
+import createServer from '../src/server'
+import FileStore from '../src/FileStore'
 
 // ── helpers ───────────────────────────────────────────────────────────────
 
