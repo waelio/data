@@ -8,7 +8,7 @@
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
     "build": "tsup src/index.ts src/server.ts --format cjs,esm --dts",
-    "test": "node --test test/"
+    "test": "node --experimental-strip-types --test test/server.test.ts"
   },
   "keywords": [
     "database",
