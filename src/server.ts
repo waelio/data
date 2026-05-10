@@ -272,10 +272,9 @@ export default createServer
 
 // Allow running directly
 if (
-  require.main === module ||
-  (typeof process !== 'undefined' &&
-    process.argv[1] &&
-    process.argv[1].endsWith('server.ts'))
+  typeof process !== 'undefined' &&
+  process.argv[1] &&
+  process.argv[1].endsWith('server.ts')
 ) {
   const token = process.env.DB_TOKEN
   const port = parseInt(process.env.DB_PORT || '3714', 10)
