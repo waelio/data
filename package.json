@@ -2,9 +2,12 @@
   "name": "@waelio/data",
   "version": "1.0.0",
   "description": "Local secure reactive database accessible from a website",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "start": "node src/server.js",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsup src/index.ts src/server.ts --format cjs,esm --dts",
     "test": "node --test test/"
   },
   "keywords": [
@@ -12,8 +15,16 @@
     "local",
     "secure",
     "reactive",
-    "json"
+    "json",
+    "typescript"
   ],
   "author": "waelio",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "prettier": "^3.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
 }
