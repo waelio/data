@@ -16,7 +16,7 @@ export interface ServerOptions {
 }
 
 export function createServer(options: ServerOptions = {}) {
-  const port = options.port || 3714
+  const port = options.port ?? 3714
   const host = options.host || '127.0.0.1'
   const corsOrigin = options.cors || null
 
