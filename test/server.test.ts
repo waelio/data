@@ -8,9 +8,9 @@ import path from 'node:path'
 import http from 'node:http'
 import crypto from 'node:crypto'
 
-import Database from '../src/Database'
-import createServer from '../src/server'
-import FileStore from '../src/FileStore'
+import Database from '../src/Database.ts'
+import createServer from '../src/server.ts'
+import FileStore from '../src/FileStore.ts'
 
 // ── helpers ───────────────────────────────────────────────────────────────
 
