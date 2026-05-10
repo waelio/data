@@ -33,7 +33,7 @@ export class Database extends EventEmitter {
       Buffer.from(this._encryptionKey, 'hex').length !== 32
     ) {
       throw new Error(
-        'encryptionKey must be a 64-character hex string (32 bytes).'
+        'encryptionKey must be a 64-character hex string (32 bytes).',
       )
     }
 
@@ -82,7 +82,7 @@ export class Database extends EventEmitter {
     const cipher = crypto.createCipheriv(
       'aes-256-cbc',
       Buffer.from(this._encryptionKey!, 'hex'),
-      iv
+      iv,
     )
     const encrypted = Buffer.concat([
       cipher.update(text, 'utf8'),
@@ -97,7 +97,7 @@ export class Database extends EventEmitter {
     const decipher = crypto.createDecipheriv(
       'aes-256-cbc',
       Buffer.from(this._encryptionKey!, 'hex'),
-      iv
+      iv,
     )
     return Buffer.concat([
       decipher.update(Buffer.from(dataHex, 'hex')),

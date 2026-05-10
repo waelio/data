@@ -123,7 +123,7 @@ export function createServer(options: ServerOptions = {}) {
 
     const url = new URL(
       req.url || '/',
-      `http://${req.headers.host || 'localhost'}`
+      `http://${req.headers.host || 'localhost'}`,
     )
     const parts = url.pathname.replace(/^\//, '').split('/').filter(Boolean)
 
@@ -257,7 +257,7 @@ export function createServer(options: ServerOptions = {}) {
       console.error('[@waelio/data] Server error:', err)
       try {
         sendJSON(res, 500, { error: 'Internal server error' })
-      } catch (_) { }
+      } catch (_) {}
     })
   })
 
