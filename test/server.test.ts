@@ -322,4 +322,46 @@ describe('createServer', () => {
     const r = await httpRequest(options)
     assert.equal(r.status, 204)
   })
+
+  // ── Files E2E tests ────────────────────────────────────────────────────────
+
+  it('POST /files/:key stores a binary file', async () => {
+    const r = await req('POST', '/files/test-audio.mp3', Buffer.from('fake-mp3-data'))
+    assert.equal(r.status, 200)
+    assert.equal(r.body.ok, true)
+    assert.equal(r.body.key, 'test-audio.mp3')
+  })
+
+  it('GET /files/:key retrieves a binary file', async () => {
+    await req('POST', '/files/test-audio.mp3', Buffer.from('fake-mp3-data'))
+    const r = await req('GET', '/files/test-audio.mp3')
+    assert.equal(r.status, 200)
+    assert.equal(r.body, 'fake-mp3-data')
+    assert.equal(r.headers['content-type'], 'audio/mpeg')
+  })
+
+  it('DELETE /files/:key removes a file', async () => {
+    await req('POST', '/files/delete-me.txt', Buffer.from('hello'))
+    const r = await req('DELETE', '/files/delete-me.txt')
+    assert.equal(r.status, 200)
+    assert.equal(r.body.ok, true)
+
+    const r2 = await req('GET', '/files/delete-me.txt')
+    assert.equal(r2.status, 404)
+  })
+
+  it('POST /files/:key rejects directory traversal (..)', async () => {
+    const r = await req('POST', '/files/../etc/passwd', Buffer.from('hack'))
+    assert.equal(r.status, 400)
+  })
+
+  it('POST /files/:key rejects directory traversal (leading slash)', async () => {
+    // Note: URL path resolves leading slashes sometimes, but let's test if it handles %2F or similar if we directly send
+    // or just '/files//etc/passwd' which translates to '' as parts[0] is 'files' and parts[1] is 'etc' etc.
+    // If the path contains '..', our logic catches it.
+    const r = await req('POST', '/files/..%2F..%2Fetc%2Fpasswd', Buffer.from('hack'))
+    // Actually the HTTP router parts are decoded by some frameworks, but here we don't decode
+    assert.equal(r.status, 400)
+  })
+
 })
