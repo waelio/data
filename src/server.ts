@@ -1,8 +1,8 @@
 import http from 'node:http'
 import crypto from 'node:crypto'
 import path from 'node:path'
-import { Database, DatabaseOptions } from './Database.ts'
-import { FileStore, FileStoreOptions } from './FileStore.ts'
+import Database, { type DatabaseOptions } from './Database.ts'
+import FileStore, { type FileStoreOptions } from './FileStore.ts'
 
 export interface ServerOptions {
   db?: Database
