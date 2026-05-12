@@ -136,8 +136,40 @@ Returns `{ server, db, token }`.
 | `db`        | `Database`           | new instance  | Provide your own Database instance                     |
 | `dbOptions` | `object`             | `{}`          | Forwarded to `new Database()` when no `db` is given    |
 
+## Frontend Client (Meteor-like Sync)
+
+You can use `@waelio/data` directly in your frontend apps to automatically sync data with your local database AND broadcast it to remote real-time servers (like `@waelio/messaging`).
+
+```ts
+import { WaelioCollection } from '@waelio/data/client';
+import io from 'socket.io-client';
+import feathers from '@feathersjs/client';
+
+// 1. Connect to your remote messaging server
+const socket = io('https://messaging.your-server.com');
+const app = feathers();
+app.configure(feathers.socketio(socket));
+
+// 2. Setup your local collection
+const Messages = new WaelioCollection('messages', {
+  dbUrl: 'http://localhost:3714',
+  dbToken: 'mysecrettoken',
+  messagingApp: app // Pass the feathers app to sync far away!
+});
+
+// 3. React to changes locally AND remotely
+Messages.onChange((payload) => {
+  console.log('Collection changed!', payload);
+});
+
+// 4. Save locally and broadcast to everyone instantly
+await Messages.insert('msg-1', { text: 'Hello Meteor-style' });
+```
+
 ## Running tests
 
 ```sh
 npm test
 ```
+
+- [https://waelio.com/packages/@waelio/data](https://waelio.com/packages/@waelio/data)
