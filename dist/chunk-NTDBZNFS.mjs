@@ -1,53 +1,20 @@
-"use strict";
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/index.ts
-var index_exports = {};
-__export(index_exports, {
-  Database: () => Database_default,
-  FileStore: () => FileStore_default,
-  createServer: () => server_default
-});
-module.exports = __toCommonJS(index_exports);
+// src/server.ts
+import http from "http";
+import crypto2 from "crypto";
+import path3 from "path";
 
 // src/Database.ts
-var import_node_fs = __toESM(require("fs"));
-var import_node_path = __toESM(require("path"));
-var import_node_crypto = __toESM(require("crypto"));
-var import_node_events = require("events");
-var Database = class extends import_node_events.EventEmitter {
+import fs from "fs";
+import path from "path";
+import crypto from "crypto";
+import { EventEmitter } from "events";
+var Database = class extends EventEmitter {
   _filePath;
   _encryptionKey;
   _data;
   constructor(options = {}) {
     super();
-    this._filePath = options.filePath ? import_node_path.default.resolve(options.filePath) : import_node_path.default.join(process.cwd(), "db.json");
+    this._filePath = options.filePath ? path.resolve(options.filePath) : path.join(process.cwd(), "db.json");
     this._encryptionKey = options.encryptionKey || null;
     if (this._encryptionKey && Buffer.from(this._encryptionKey, "hex").length !== 32) {
       throw new Error(
@@ -68,11 +35,11 @@ var Database = class extends import_node_events.EventEmitter {
     return root;
   }
   _load() {
-    if (!import_node_fs.default.existsSync(this._filePath)) {
+    if (!fs.existsSync(this._filePath)) {
       this._data = /* @__PURE__ */ Object.create(null);
       return;
     }
-    const raw = import_node_fs.default.readFileSync(this._filePath, "utf8");
+    const raw = fs.readFileSync(this._filePath, "utf8");
     if (!raw.trim()) {
       this._data = /* @__PURE__ */ Object.create(null);
       return;
@@ -83,12 +50,12 @@ var Database = class extends import_node_events.EventEmitter {
   _save() {
     const json = JSON.stringify(this._data, null, 2);
     const content = this._encryptionKey ? this._encrypt(json) : json;
-    import_node_fs.default.writeFileSync(this._filePath, content, "utf8");
+    fs.writeFileSync(this._filePath, content, "utf8");
   }
   // ── encryption helpers (AES-256-CBC) ─────────────────────────────────────
   _encrypt(text) {
-    const iv = import_node_crypto.default.randomBytes(16);
-    const cipher = import_node_crypto.default.createCipheriv(
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(
       "aes-256-cbc",
       Buffer.from(this._encryptionKey, "hex"),
       iv
@@ -102,7 +69,7 @@ var Database = class extends import_node_events.EventEmitter {
   _decrypt(text) {
     const [ivHex, dataHex] = text.split(":");
     const iv = Buffer.from(ivHex, "hex");
-    const decipher = import_node_crypto.default.createDecipheriv(
+    const decipher = crypto.createDecipheriv(
       "aes-256-cbc",
       Buffer.from(this._encryptionKey, "hex"),
       iv
@@ -180,19 +147,19 @@ var Database = class extends import_node_events.EventEmitter {
 var Database_default = Database;
 
 // src/FileStore.ts
-var import_node_fs2 = __toESM(require("fs"));
-var import_node_path2 = __toESM(require("path"));
-var import_node_events2 = require("events");
-var FileStore = class extends import_node_events2.EventEmitter {
+import fs2 from "fs";
+import path2 from "path";
+import { EventEmitter as EventEmitter2 } from "events";
+var FileStore = class extends EventEmitter2 {
   _storageDir;
   constructor(options = {}) {
     super();
-    this._storageDir = options.storageDir ? import_node_path2.default.resolve(options.storageDir) : import_node_path2.default.join(process.cwd(), "blobs");
+    this._storageDir = options.storageDir ? path2.resolve(options.storageDir) : path2.join(process.cwd(), "blobs");
     this._ensureDir();
   }
   _ensureDir() {
-    if (!import_node_fs2.default.existsSync(this._storageDir)) {
-      import_node_fs2.default.mkdirSync(this._storageDir, { recursive: true });
+    if (!fs2.existsSync(this._storageDir)) {
+      fs2.mkdirSync(this._storageDir, { recursive: true });
     }
   }
   _validateKey(key) {
@@ -202,56 +169,53 @@ var FileStore = class extends import_node_events2.EventEmitter {
   }
   _getFilePath(key) {
     this._validateKey(key);
-    return import_node_path2.default.join(this._storageDir, key);
+    return path2.join(this._storageDir, key);
   }
   saveFile(key, buffer) {
     const filePath = this._getFilePath(key);
-    const dir = import_node_path2.default.dirname(filePath);
-    if (!import_node_fs2.default.existsSync(dir)) {
-      import_node_fs2.default.mkdirSync(dir, { recursive: true });
+    const dir = path2.dirname(filePath);
+    if (!fs2.existsSync(dir)) {
+      fs2.mkdirSync(dir, { recursive: true });
     }
-    import_node_fs2.default.writeFileSync(filePath, buffer);
+    fs2.writeFileSync(filePath, buffer);
     this.emit("change", { event: "saveFile", key });
   }
   getFileStream(key) {
     const filePath = this._getFilePath(key);
-    if (!import_node_fs2.default.existsSync(filePath)) {
+    if (!fs2.existsSync(filePath)) {
       return null;
     }
-    return import_node_fs2.default.createReadStream(filePath);
+    return fs2.createReadStream(filePath);
   }
   getFileSize(key) {
     const filePath = this._getFilePath(key);
-    if (!import_node_fs2.default.existsSync(filePath)) {
+    if (!fs2.existsSync(filePath)) {
       return null;
     }
-    return import_node_fs2.default.statSync(filePath).size;
+    return fs2.statSync(filePath).size;
   }
   deleteFile(key) {
     const filePath = this._getFilePath(key);
-    if (!import_node_fs2.default.existsSync(filePath)) {
+    if (!fs2.existsSync(filePath)) {
       return false;
     }
-    import_node_fs2.default.unlinkSync(filePath);
+    fs2.unlinkSync(filePath);
     this.emit("change", { event: "deleteFile", key });
     return true;
   }
   hasFile(key) {
     const filePath = this._getFilePath(key);
-    return import_node_fs2.default.existsSync(filePath);
+    return fs2.existsSync(filePath);
   }
 };
 var FileStore_default = FileStore;
 
 // src/server.ts
-var import_node_http = __toESM(require("http"));
-var import_node_crypto2 = __toESM(require("crypto"));
-var import_node_path3 = __toESM(require("path"));
 function createServer(options = {}) {
   const port = options.port ?? 3714;
   const host = options.host || "127.0.0.1";
   const corsOrigin = options.cors || null;
-  const token = options.token || import_node_crypto2.default.randomBytes(32).toString("hex");
+  const token = options.token || crypto2.randomBytes(32).toString("hex");
   if (!options.token) {
     console.log(`[@waelio/data] Bearer token: ${token}`);
   }
@@ -306,7 +270,7 @@ function createServer(options = {}) {
     const provided = Buffer.from(match[1]);
     const expected = Buffer.from(token);
     if (provided.length !== expected.length) return false;
-    return import_node_crypto2.default.timingSafeEqual(provided, expected);
+    return crypto2.timingSafeEqual(provided, expected);
   }
   function readBody(req) {
     return new Promise((resolve, reject) => {
@@ -381,7 +345,7 @@ function createServer(options = {}) {
           sendJSON(res, 404, { error: "File not found" });
           return;
         }
-        const ext = import_node_path3.default.extname(fileKey);
+        const ext = path3.extname(fileKey);
         const size = fileStore.getFileSize(fileKey);
         res.writeHead(200, {
           "Content-Type": getContentType(ext),
@@ -452,7 +416,7 @@ function createServer(options = {}) {
     }
     sendJSON(res, 405, { error: "Method not allowed" });
   }
-  const server = import_node_http.default.createServer((req, res) => {
+  const server = http.createServer((req, res) => {
     handler(req, res).catch((err) => {
       console.error("[@waelio/data] Server error:", err);
       try {
@@ -484,9 +448,10 @@ if (typeof process !== "undefined" && process.argv[1] && process.argv[1].endsWit
     fileStoreOptions: { storageDir }
   });
 }
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  Database,
-  FileStore,
-  createServer
-});
+
+export {
+  Database_default,
+  FileStore_default,
+  createServer,
+  server_default
+};

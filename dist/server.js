@@ -338,11 +338,14 @@ function createServer(options = {}) {
       unauthorized(res);
       return;
     }
-    const url = new URL(
-      req.url || "/",
-      `http://${req.headers.host || "localhost"}`
-    );
-    const parts = url.pathname.replace(/^\//, "").split("/").filter(Boolean);
+    const rawPathname = (req.url || "/").split("?")[0];
+    let pathname = rawPathname;
+    try {
+      pathname = decodeURIComponent(rawPathname);
+    } catch {
+      pathname = rawPathname;
+    }
+    const parts = pathname.replace(/^\//, "").split("/").filter(Boolean);
     if (req.method === "GET" && parts[0] === "events") {
       const sseHeaders = {
         "Content-Type": "text/event-stream",
