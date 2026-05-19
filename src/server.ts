@@ -1,8 +1,8 @@
 import http from 'node:http'
 import crypto from 'node:crypto'
 import path from 'node:path'
-import Database, { type DatabaseOptions } from './Database'
-import FileStore, { type FileStoreOptions } from './FileStore'
+import Database, { type DatabaseOptions } from './Database.ts'
+import FileStore, { type FileStoreOptions } from './FileStore.ts'
 
 export interface ServerOptions {
   db?: Database
@@ -121,11 +121,14 @@ export function createServer(options: ServerOptions = {}) {
       return
     }
 
-    const url = new URL(
-      req.url || '/',
-      `http://${req.headers.host || 'localhost'}`,
-    )
-    const parts = url.pathname.replace(/^\//, '').split('/').filter(Boolean)
+    const rawPathname = (req.url || '/').split('?')[0]
+    let pathname = rawPathname
+    try {
+      pathname = decodeURIComponent(rawPathname)
+    } catch {
+      pathname = rawPathname
+    }
+    const parts = pathname.replace(/^\//, '').split('/').filter(Boolean)
 
     if (req.method === 'GET' && parts[0] === 'events') {
       const sseHeaders: Record<string, string> = {
@@ -257,7 +260,7 @@ export function createServer(options: ServerOptions = {}) {
       console.error('[@waelio/data] Server error:', err)
       try {
         sendJSON(res, 500, { error: 'Internal server error' })
-      } catch (_) {}
+      } catch (_) { }
     })
   })
 

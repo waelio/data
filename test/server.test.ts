@@ -39,8 +39,12 @@ function httpRequest(options, body) {
     })
     req.on('error', reject)
     if (body !== undefined) {
-      const payload = JSON.stringify(body)
-      req.write(payload)
+      if (Buffer.isBuffer(body)) {
+        req.write(body)
+      } else {
+        const payload = JSON.stringify(body)
+        req.write(payload)
+      }
     }
     req.end()
   })
@@ -60,7 +64,7 @@ describe('Database', () => {
   after(() => {
     try {
       if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath)
-    } catch (_) {}
+    } catch (_) { }
   })
 
   it('stores and retrieves a value', () => {
